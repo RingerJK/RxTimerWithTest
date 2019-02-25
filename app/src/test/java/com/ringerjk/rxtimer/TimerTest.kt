@@ -68,7 +68,6 @@ class TimerTest {
 
         testObs.assertValues(0, 1, 2, 3, 4, 5, 5, 6, 7)
         testObs.assertNotTerminated()
-        println(testObs.values())
     }
 
     @Test
@@ -90,7 +89,48 @@ class TimerTest {
 
         testObs.assertValues(0, 1, 2, 3, 4, 5, 5, 6, 7, 0, 1, 2, 2, 3, 4)
         testObs.assertNotTerminated()
-        println(testObs.values())
+    }
+
+    @Test
+    fun startStop() {
+        val testObs = provideTimerTestObservable()
+        timer.start()
+        advancedByTime(5)
+        timer.stop()
+        advancedByTime(2)
+
+        testObs.assertValues(0, 1, 2, 3, 4, 5)
+        testObs.assertNotTerminated()
+    }
+
+    @Test
+    fun startStopResume() {
+        val testObs = provideTimerTestObservable()
+
+        timer.start()
+        advancedByTime(5)
+        timer.stop()
+        advancedByTime(2)
+        timer.resume()
+        advancedByTime(3)
+
+        testObs.assertValues(0, 1, 2, 3, 4, 5, 0, 1, 2, 3)
+        testObs.assertNotTerminated()
+    }
+
+    @Test
+    fun neverStartOrResume(){
+        val testObs = provideTimerTestObservable()
+
+        timer.pause()
+        advancedByTime(5)
+        timer.stop()
+        advancedByTime(5)
+        timer.pause()
+        advancedByTime(5)
+
+        testObs.assertNoValues()
+        testObs.assertNotTerminated()
     }
 
     @Test
@@ -101,6 +141,7 @@ class TimerTest {
         timer.start()
         advancedByTime(5)
         timer.pause()
+        advancedByTime(5)
 
         testObs1.assertValues(0, 1, 2, 3, 4, 5)
         testObs2.assertValues(0, 1, 2, 3, 4, 5)
@@ -117,10 +158,5 @@ class TimerTest {
         testObs1.assertNotTerminated()
         testObs2.assertNotTerminated()
         testObs3.assertNotTerminated()
-
-        println(testObs1.values())
-        println(testObs2.values())
     }
-
-
 }
